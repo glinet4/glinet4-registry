@@ -37,6 +37,24 @@ def test_validate_clean_and_rejections():
 def test_build_manifest_counts():
     entry = build_manifest([{**CLEAN, "id": "mt6000_4.9.0"}])["devices"][0]
     assert entry["available_count"] == 1 and entry["service_count"] == 1
+    assert entry["discovered_count"] == 0
+
+
+def test_build_manifest_counts_discovered_writes():
+    prof = {
+        "id": "x",
+        "model": "m",
+        "firmware_version": "1",
+        "services": {
+            "acl": {
+                "get_x": {"status": "available", "covered_by": None},
+                "set_x": {"status": "discovered", "covered_by": None},
+            }
+        },
+    }
+    entry = build_manifest([prof])["devices"][0]
+    assert entry["available_count"] == 1
+    assert entry["discovered_count"] == 1
 
 
 def test_committed_index_matches_devices():

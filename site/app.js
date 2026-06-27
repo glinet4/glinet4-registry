@@ -5,6 +5,7 @@ const els = {
   search: document.getElementById("search"),
   availableOnly: document.getElementById("available-only"),
   notWrapped: document.getElementById("not-wrapped"),
+  discoveredOnly: document.getElementById("discovered-only"),
   count: document.getElementById("count"),
   results: document.getElementById("results"),
 };
@@ -44,6 +45,7 @@ function render() {
   const q = els.search.value.trim().toLowerCase();
   const availOnly = els.availableOnly.checked;
   const nw = els.notWrapped.checked;
+  const disc = els.discoveredOnly.checked;
   let shown = 0;
   const parts = [];
   for (const service of Object.keys(current.services).sort()) {
@@ -54,6 +56,7 @@ function render() {
       const present = PRESENT.has(rec.status);
       if (availOnly && !present) continue;
       if (nw && !(present && rec.covered_by == null)) continue;
+      if (disc && rec.status !== "discovered") continue;
       if (q && !`${service}.${method}`.toLowerCase().includes(q)) continue;
       rows.push(methodRow(service, method, rec));
       shown += 1;
@@ -90,14 +93,15 @@ async function loadManifest() {
   for (const d of manifest.devices) {
     const opt = document.createElement("option");
     opt.value = d.id;
-    opt.textContent = `${d.model} (${d.firmware_version}) — ${d.available_count} available`;
+    const writes = d.discovered_count ? `, ${d.discovered_count} discovered` : "";
+    opt.textContent = `${d.model} (${d.firmware_version}) — ${d.available_count} available${writes}`;
     els.device.appendChild(opt);
   }
   await loadDevice(manifest.devices[0].id);
 }
 
 els.device.addEventListener("change", (e) => loadDevice(e.target.value));
-for (const el of [els.search, els.availableOnly, els.notWrapped]) {
+for (const el of [els.search, els.availableOnly, els.notWrapped, els.discoveredOnly]) {
   el.addEventListener("input", render);
 }
 els.results.addEventListener("click", (e) => {

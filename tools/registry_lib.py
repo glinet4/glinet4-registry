@@ -61,6 +61,12 @@ def build_manifest(profiles: list[dict[str, Any]]) -> dict[str, Any]:
             for methods in dev["services"].values()
             if any(rec.get("status") in _PRESENT for rec in methods.values())
         )
+        discovered_count = sum(
+            1
+            for methods in dev["services"].values()
+            for rec in methods.values()
+            if rec.get("status") == "discovered"
+        )
         entries.append(
             {
                 "id": dev["id"],
@@ -68,6 +74,7 @@ def build_manifest(profiles: list[dict[str, Any]]) -> dict[str, Any]:
                 "firmware_version": dev.get("firmware_version", "unknown"),
                 "service_count": service_count,
                 "available_count": len(present),
+                "discovered_count": discovered_count,
                 "not_wrapped_count": sum(1 for rec in present if rec.get("covered_by") is None),
             }
         )
