@@ -15,6 +15,7 @@ jobs:
       - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
         with:
           python-version: "3.11"
+          enable-cache: false # no dependency file to key a cache (pure stdlib repo)
       - run: uvx ruff check .
       - run: python scripts/build_manifest.py --check
       - run: uvx pytest -q
