@@ -6,6 +6,7 @@ const els = {
   availableOnly: document.getElementById("available-only"),
   notWrapped: document.getElementById("not-wrapped"),
   discoveredOnly: document.getElementById("discovered-only"),
+  openrpc: document.getElementById("openrpc"),
   count: document.getElementById("count"),
   results: document.getElementById("results"),
 };
@@ -72,6 +73,9 @@ async function loadDevice(id) {
     const res = await fetch(`data/devices/${id}.json`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     current = await res.json();
+    els.openrpc.href = `data/openrpc/${id}.openrpc.json`;
+    els.openrpc.download = `${id}.openrpc.json`;
+    els.openrpc.hidden = false;
     render();
   } catch (err) {
     els.results.innerHTML = "<p class='empty'>Could not load this device's data.</p>";

@@ -80,3 +80,75 @@ def build_manifest(profiles: list[dict[str, Any]]) -> dict[str, Any]:
         )
     entries.sort(key=lambda entry: (entry["model"], entry["firmware_version"]))
     return {"devices": entries}
+
+
+# OpenRPC export ------------------------------------------------------------------
+# A device profile is a superset of an API spec (it carries probe status/risk/provenance),
+# but the "exists" methods + their captured schemas map cleanly onto OpenRPC (the JSON-RPC
+# analog of OpenAPI), which unlocks codegen + standard tooling. Registry-only metadata is
+# preserved in `x-` specification extensions.
+
+_OPENRPC_EXISTS = ("available", "needs_params", "error", "discovered")
+_SCALAR_TO_JSON = {
+    "str": "string",
+    "int": "integer",
+    "float": "number",
+    "bool": "boolean",
+    "null": "null",
+    "list": "array",
+    "dict": "object",
+}
+
+
+def _to_json_schema(shape: Any) -> dict[str, Any]:
+    """Convert a captured type-erased shape (e.g. {'n': 'int'}) into a JSON Schema fragment."""
+    if isinstance(shape, dict):
+        return {
+            "type": "object",
+            "properties": {k: _to_json_schema(v) for k, v in shape.items()},
+        }
+    if isinstance(shape, list):
+        return {"type": "array", "items": _to_json_schema(shape[0]) if shape else {}}
+    if isinstance(shape, str):
+        json_type = _SCALAR_TO_JSON.get(shape)
+        return {"type": json_type} if json_type else {}
+    return {}
+
+
+def to_openrpc(profile: dict[str, Any]) -> dict[str, Any]:
+    """Render a device profile as an OpenRPC 1.x document (the exists-methods + their schemas)."""
+    model = profile.get("model", "unknown")
+    firmware = profile.get("firmware_version", "unknown")
+    methods = []
+    for service in sorted(profile.get("services", {})):
+        for method in sorted(profile["services"][service]):
+            rec = profile["services"][service][method]
+            if rec.get("status") not in _OPENRPC_EXISTS:
+                continue  # absent / unreachable / other aren't part of the surface
+            schema = rec.get("schema")
+            entry: dict[str, Any] = {
+                "name": f"{service}.{method}",
+                "params": [{"name": p, "schema": {}} for p in (rec.get("params") or [])],
+                "result": {"name": "result", "schema": _to_json_schema(schema) if schema else {}},
+                "x-status": rec.get("status"),
+                "x-risk": rec.get("risk"),
+                "x-discovered-by": rec.get("discovered_by"),
+            }
+            if rec.get("covered_by"):
+                entry["x-gli4py"] = rec["covered_by"]
+            methods.append(entry)
+    return {
+        "openrpc": "1.2.6",
+        "info": {
+            "title": f"GL.iNet {model} RPC API",
+            "version": str(firmware),
+            "description": (
+                f"Auto-generated from a sanitized glinet-profiler capture of a GL.iNet {model} "
+                f"on firmware {firmware}. Calls are JSON-RPC 2.0 over POST /rpc. The `x-status`, "
+                "`x-risk`, `x-discovered-by` and `x-gli4py` extensions carry registry metadata. "
+                "Empirical observation, not an official vendor contract."
+            ),
+            "license": {"name": "GPL-3.0-or-later"},
+        },
+        "methods": methods,
+    }

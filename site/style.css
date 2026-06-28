@@ -15,7 +15,10 @@ select, #search { background: var(--panel); color: var(--fg); border: 1px solid 
   border-radius: 6px; padding: 6px 8px; font: inherit; }
 #search { flex: 1; min-width: 180px; }
 .chk { color: var(--muted); display: flex; gap: 4px; align-items: center; }
-.count { color: var(--muted); margin-left: auto; }
+.count { color: var(--muted); }
+.openrpc { margin-left: auto; color: var(--blue); text-decoration: none; font-size: .85rem;
+  padding: 3px 9px; border: 1px solid var(--blue); border-radius: 6px; }
+.openrpc[hidden] { display: none; }
 .service { border: 1px solid var(--line); border-radius: 8px; margin: 12px 0; overflow: hidden; }
 .service h2 { margin: 0; padding: 8px 12px; font-size: 14px; background: var(--panel); }
 .method { padding: 7px 12px; border-top: 1px solid var(--line); cursor: pointer; }

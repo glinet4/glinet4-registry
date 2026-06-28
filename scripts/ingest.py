@@ -1,11 +1,14 @@
-"""Validate a submitted profile, write registry/devices/<id>.json, rebuild the manifest."""
+"""Validate a submitted profile, write registry/devices/<id>.json, rebuild generated artifacts."""
 
 import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from tools.registry_lib import build_manifest, device_id, validate_profile  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling build_manifest
+import build_manifest  # noqa: E402
+
+from tools.registry_lib import device_id, validate_profile  # noqa: E402
 
 _REG = Path(__file__).resolve().parent.parent / "registry"
 
@@ -25,12 +28,7 @@ def main(argv: list[str] | None = None) -> int:
     (_REG / "devices" / f"{new_id}.json").write_text(
         json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    profiles = [
-        json.loads(p.read_text(encoding="utf-8")) for p in sorted((_REG / "devices").glob("*.json"))
-    ]
-    (_REG / "index.json").write_text(
-        json.dumps(build_manifest(profiles), indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    build_manifest.regenerate(_REG)  # index.json + OpenRPC docs
     print(new_id)
     return 0
 

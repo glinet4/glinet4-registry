@@ -4,7 +4,10 @@ Community device-profile registry for GL.iNet routers — firmware API capabilit
 
 ## What this is
 
-`registry/devices/` holds one sanitized JSON profile per device+firmware combination. `registry/index.json` is a generated manifest summarising available method counts per device, kept in sync by `scripts/build_manifest.py`.
+`registry/devices/` holds one sanitized JSON profile per device+firmware combination. Two sets of files are **generated** from those (don't hand-edit), both kept in sync by `scripts/build_manifest.py`:
+
+- `registry/index.json` — a manifest summarising method counts per device.
+- `registry/openrpc/<id>.openrpc.json` — an [OpenRPC](https://open-rpc.org/) document per device (the JSON-RPC analog of OpenAPI: the "exists" methods + their JSON-Schema results, with registry metadata in `x-` extensions). Feed it to OpenRPC codegen/tooling to generate a typed client. Downloadable from each device on the browse site.
 
 ## How to contribute
 
