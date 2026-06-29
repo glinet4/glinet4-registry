@@ -3,33 +3,87 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GL.iNet API registry</title>
+  <title>GL.iNet API Registry — discovered JSON-RPC surface</title>
+  <meta name="description" content="A community registry of the GL.iNet router JSON-RPC API surface — methods, response shapes, and inferred request shapes, discovered with glinet-profiler.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>GL.iNet API registry</h1>
-    <p class="sub">Discovered RPC surface per device — collected with <code>glinet-profiler</code>.</p>
+  <header class="topbar">
+    <a class="brand" href="#" data-nav="overview">
+      <span class="brand-mark">◊</span>
+      <span class="brand-name">GL.iNet&nbsp;API&nbsp;<span class="brand-accent">Registry</span></span>
+    </a>
+    <nav class="topnav">
+      <a href="#" data-nav="overview">Overview</a>
+      <a href="#matrix" data-nav="overview">Compare</a>
+      <a href="https://github.com/shauneccles/glinet-profiler" target="_blank" rel="noopener">Contribute</a>
+      <a class="topnav-gh" href="https://github.com/shauneccles/glinet-registry" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
   </header>
-  <div class="controls">
-    <label class="field">Model
-      <select id="device"></select>
-    </label>
-    <input id="search" type="search" placeholder="filter service / method…">
-    <label class="chk"><input type="checkbox" id="available-only"> available only</label>
-    <label class="chk"><input type="checkbox" id="not-wrapped"> not yet in gli4py</label>
-    <label class="chk"><input type="checkbox" id="discovered-only"> writes (discovered)</label>
-    <a id="openrpc" class="openrpc" href="#" download hidden>⬇ OpenRPC</a>
-    <span id="count" class="count"></span>
-  </div>
-  <div id="capabilities" class="capabilities" hidden></div>
-  <main id="results"></main>
-  <footer>
-    <p>Sanitized profiles — no device identifiers or response values are published.
-      Profiles are captured with <a href="https://github.com/shauneccles/glinet-profiler">glinet-profiler</a>;
-      a <code>gli4py:&nbsp;…</code> badge marks methods the
-      <a href="https://github.com/shauneccles/gli4py">gli4py</a> Python client wraps.</p>
+
+  <main>
+    <!-- ============ OVERVIEW VIEW ============ -->
+    <section id="overview" class="view">
+      <section class="hero">
+        <p class="hero-eyebrow">Community-discovered · firmware 4.x</p>
+        <h1 class="hero-title">The GL.iNet router API,<br>mapped from the&nbsp;outside.</h1>
+        <p class="hero-lede">
+          GL.iNet took the 4.x JSON-RPC reference offline. This registry rebuilds it —
+          every discovered method, its real response <strong>signature</strong>, and the
+          <strong>request shape</strong> for writes — captured from real hardware with
+          <code>glinet-profiler</code>. Enough to write a client and know it works.
+        </p>
+        <div class="hero-stats" id="hero-stats"><!-- JS --></div>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#matrix">Browse the registry ↓</a>
+          <a class="btn btn-ghost" href="https://github.com/shauneccles/glinet-profiler" target="_blank" rel="noopener">Profile your router</a>
+        </div>
+      </section>
+
+      <section id="matrix" class="panel matrix-section">
+        <div class="panel-head">
+          <h2>Feature overview</h2>
+          <p class="panel-sub">What each captured model supports — click a model to open its full API surface.</p>
+        </div>
+        <div class="matrix-wrap"><div class="matrix-host" id="matrix-host"><!-- JS --></div></div>
+      </section>
+    </section>
+
+    <!-- ============ DETAIL VIEW ============ -->
+    <section id="detail" class="view" hidden>
+      <a class="back-link" href="#" data-nav="overview">← All models</a>
+      <header class="device-head">
+        <div>
+          <h2 id="d-model">—</h2>
+          <p class="device-meta" id="d-meta">—</p>
+        </div>
+        <a id="d-openrpc" class="btn btn-ghost btn-sm" href="#" download hidden>⬇ OpenRPC spec</a>
+      </header>
+
+      <div id="d-capabilities" class="caps" hidden><!-- JS --></div>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Filter service / method…" autocomplete="off">
+        <label class="chip-toggle"><input type="checkbox" id="f-available"> available</label>
+        <label class="chip-toggle"><input type="checkbox" id="f-writes"> writes</label>
+        <label class="chip-toggle"><input type="checkbox" id="f-unwrapped"> not in gli4py</label>
+        <span class="toolbar-count" id="d-count"></span>
+      </div>
+
+      <div id="d-results" class="results"><!-- JS --></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Sanitized profiles — no device identifiers or response values are published.
+      Captured with <a href="https://github.com/shauneccles/glinet-profiler">glinet-profiler</a>;
+      a <code>gli4py</code> badge marks methods the
+      <a href="https://github.com/shauneccles/gli4py">gli4py</a> client wraps.
+    </p>
+    <p class="footer-fine">Empirical observation, not an official vendor contract.</p>
   </footer>
+
   <script src="app.js"></script>
 </body>
 </html>
