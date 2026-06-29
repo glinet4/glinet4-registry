@@ -1,19 +1,30 @@
 name: Submit a device profile
-description: Contribute a captured GL.iNet API profile to the registry.
-title: "Add profile: "
-labels: [profile-submission]
+description: Contribute a captured GL.iNet API profile (a bot validates it and opens a pull request).
+title: "Add profile: <model> <firmware>"
+labels: ["profile-submission"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for contributing! **Attach the `<id>.json` you downloaded from the
-        glinet-profiler launcher** in the field below — drag-and-drop the file,
-        don't paste its contents. A bot validates it and opens a pull request.
+        ## Thanks for contributing a device profile! 🎉
+
+        Capture one with the launcher — it produces a **sanitized** file (no password, MAC, serial,
+        or response values; just the API shape):
+
+        ```
+        uvx glinet-profiler              # local web UI: capture, then click Download
+        uvx glinet-profiler 192.168.8.1  # headless: writes <id>.json + prints a submit link
+        ```
+
+        Then **drag-and-drop the saved `<id>.json` into the box below** (don't paste its contents).
+        A bot validates the file and opens a pull request for you — nothing else to do.
   - type: textarea
     id: profile
     attributes:
       label: Profile file
-      description: Drag-and-drop your downloaded `<id>.json` here.
+      description: >-
+        Drag-and-drop your `<id>.json` here and **wait for the `…/files/…/<id>.json` link to appear**
+        before submitting. Pasting the JSON text won't work — the bot needs the attached file.
       placeholder: Drop the .json file here…
     validations:
       required: true
@@ -21,4 +32,4 @@ body:
     id: notes
     attributes:
       label: Notes (optional)
-      description: Anything else we should know.
+      description: Anything worth noting — non-default firmware, hardware revision, or a quirk you saw.
