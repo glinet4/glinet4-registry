@@ -155,6 +155,23 @@ def test_manifest_and_openrpc_carry_capabilities():
     assert doc["x-capabilities"]["hardware_feature"]["simo"] is False
 
 
+def test_to_openrpc_uses_signature_for_schema_and_examples():
+    profile = {
+        "id": "x_1", "model": "x", "firmware_version": "1",
+        "services": {"wifi": {"get_status": {
+            "status": "available", "risk": "read", "discovered_by": "catalog",
+            "covered_by": None, "params": None,
+            "signature": {"band": "5g", "channel": 36, "gateway": "<ipv4>"},
+        }}},
+    }
+    m = {x["name"]: x for x in to_openrpc(profile)["methods"]}["wifi.get_status"]
+    schema = m["result"]["schema"]
+    assert schema["type"] == "object"
+    assert schema["properties"]["channel"] == {"type": "integer", "examples": [36]}
+    assert schema["properties"]["band"] == {"type": "string", "examples": ["5g"]}
+    assert schema["properties"]["gateway"] == {"type": "string", "format": "ipv4"}
+
+
 def test_committed_index_matches_devices():
     reg = Path(__file__).resolve().parent.parent / "registry"
     profiles = [

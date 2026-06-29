@@ -101,6 +101,34 @@ _SCALAR_TO_JSON = {
 }
 
 
+_LABEL_FORMAT = {
+    "<ipv4>": "ipv4", "<ipv6>": "ipv6", "<mac>": "mac", "<datetime>": "date-time",
+}
+
+
+def _signature_to_schema(sig: Any) -> dict[str, Any]:
+    """Convert a distilled signature node into a JSON Schema fragment (with format/examples)."""
+    if isinstance(sig, dict):
+        return {"type": "object", "properties": {k: _signature_to_schema(v) for k, v in sig.items()}}
+    if isinstance(sig, list):
+        return {"type": "array", "items": _signature_to_schema(sig[0]) if sig else {}}
+    if isinstance(sig, bool):
+        return {"type": "boolean", "examples": [sig]}
+    if isinstance(sig, int):
+        return {"type": "integer", "examples": [sig]}
+    if isinstance(sig, float):
+        return {"type": "number", "examples": [sig]}
+    if sig is None:
+        return {}
+    if isinstance(sig, str):
+        if sig in _LABEL_FORMAT:
+            return {"type": "string", "format": _LABEL_FORMAT[sig]}
+        if sig in ("<secret>", "<string>"):
+            return {"type": "string"}
+        return {"type": "string", "examples": [sig]}  # kept enum value
+    return {}
+
+
 def _to_json_schema(shape: Any) -> dict[str, Any]:
     """Convert a captured type-erased shape (e.g. {'n': 'int'}) into a JSON Schema fragment."""
     if isinstance(shape, dict):
@@ -126,11 +154,16 @@ def to_openrpc(profile: dict[str, Any]) -> dict[str, Any]:
             rec = profile["services"][service][method]
             if rec.get("status") not in _OPENRPC_EXISTS:
                 continue  # absent / unreachable / other aren't part of the surface
-            schema = rec.get("schema")
+            sig = rec.get("signature")
+            if sig is not None:
+                result_schema = _signature_to_schema(sig)
+            else:  # legacy profile: fall back to the type-erased schema
+                schema = rec.get("schema")
+                result_schema = _to_json_schema(schema) if schema else {}
             entry: dict[str, Any] = {
                 "name": f"{service}.{method}",
                 "params": [{"name": p, "schema": {}} for p in (rec.get("params") or [])],
-                "result": {"name": "result", "schema": _to_json_schema(schema) if schema else {}},
+                "result": {"name": "result", "schema": result_schema},
                 "x-status": rec.get("status"),
                 "x-risk": rec.get("risk"),
                 "x-discovered-by": rec.get("discovered_by"),
