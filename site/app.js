@@ -37,6 +37,21 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+const WRITE_VERBS = new Set(["set", "add", "update", "create", "del", "remove", "clear"]);
+
+function inferredRequest(service, method) {
+  const us = method.indexOf("_");
+  if (us < 0) return null;
+  const verb = method.slice(0, us), noun = method.slice(us + 1);
+  if (!WRITE_VERBS.has(verb) || !noun) return null;
+  const methods = current.services[service] || {};
+  for (const cand of [`get_${noun}`, `get_${noun}_list`, `get_${noun}_config`, `get_${noun}_info`]) {
+    const r = methods[cand];
+    if (r && r.signature && typeof r.signature === "object") return { from: `${service}.${cand}`, shape: r.signature };
+  }
+  return null;
+}
+
 function badge(text, cls) {
   return `<span class="badge ${escapeHtml(cls)}">${escapeHtml(text)}</span>`;
 }
@@ -47,10 +62,12 @@ function methodRow(service, method, rec) {
   if (rec.covered_by) cov = badge(`gli4py: ${rec.covered_by}`, "cov-yes");
   else if (present) cov = badge("not yet in gli4py", "cov-no");
   let detail = "";
-  if (rec.params || rec.schema) {
-    const body = JSON.stringify({ params: rec.params, schema: rec.schema }, null, 2);
-    detail = `<pre class="detail">${escapeHtml(body)}</pre>`;
-  }
+  const parts = [];
+  if (rec.signature != null) parts.push("// response signature\n" + JSON.stringify(rec.signature, null, 2));
+  const inferred = rec.risk === "write" ? inferredRequest(service, method) : null;
+  if (inferred) parts.push(`// request shape (inferred from ${inferred.from})\n` + JSON.stringify(inferred.shape, null, 2));
+  else if (rec.params && rec.params.length) parts.push("// params\n" + JSON.stringify(rec.params, null, 2));
+  if (parts.length) detail = `<pre class="detail">${escapeHtml(parts.join("\n\n"))}</pre>`;
   return `<div class="method">
     <div class="mhead">
       <code>${escapeHtml(method)}</code>
