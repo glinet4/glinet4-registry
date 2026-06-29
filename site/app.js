@@ -199,6 +199,7 @@ function renderResults() {
   if (!p) return;
   const q = $("search").value.trim().toLowerCase();
   const availOnly = $("f-available").checked, writesOnly = $("f-writes").checked, unwrapped = $("f-unwrapped").checked;
+  const filtering = !!(q || availOnly || writesOnly || unwrapped);  // auto-expand groups when filtering
   let shown = 0;
   const parts = [];
   for (const service of Object.keys(p.services).sort()) {
@@ -215,8 +216,9 @@ function renderResults() {
       shown += 1;
     }
     if (rows.length) {
-      parts.push(`<section class="service"><h3>${escapeHtml(service)}` +
-        `<span class="svc-count">${rows.length}</span></h3>${rows.join("")}</section>`);
+      parts.push(`<details class="service"${filtering ? " open" : ""}>` +
+        `<summary class="svc-head"><span class="svc-name">${escapeHtml(service)}</span>` +
+        `<span class="svc-count">${rows.length}</span></summary>${rows.join("")}</details>`);
     }
   }
   $("d-results").innerHTML = parts.join("") || '<p class="empty">No methods match these filters.</p>';
