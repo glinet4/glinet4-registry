@@ -15,7 +15,7 @@ const SW_LABELS = {
   obfuscation: "VPN obfuscation",
   nas: "NAS / SMB file sharing",
   sms_forward: "SMS forwarding",
-  bark: "Bark notifications",
+  bark: "Bark parental controls",
   ipv6: "IPv6",
   mlo: "MLO (Wi-Fi 7)",
   vlan: "VLAN",
