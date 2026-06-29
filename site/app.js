@@ -37,7 +37,7 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-const WRITE_VERBS = new Set(["set", "add", "update", "create", "del", "remove", "clear"]);
+const WRITE_VERBS = new Set(["set", "add", "update", "create", "del", "delete", "remove", "clear"]);
 
 function inferredRequest(service, method) {
   const us = method.indexOf("_");
@@ -47,7 +47,8 @@ function inferredRequest(service, method) {
   const methods = current.services[service] || {};
   for (const cand of [`get_${noun}`, `get_${noun}_list`, `get_${noun}_config`, `get_${noun}_info`]) {
     const r = methods[cand];
-    if (r && r.signature && typeof r.signature === "object") return { from: `${service}.${cand}`, shape: r.signature };
+    if (r && r.signature && typeof r.signature === "object" && !Array.isArray(r.signature))
+      return { from: `${service}.${cand}`, shape: r.signature };
   }
   return null;
 }
@@ -64,7 +65,11 @@ function methodRow(service, method, rec) {
   let detail = "";
   const parts = [];
   if (rec.signature != null) parts.push("// response signature\n" + JSON.stringify(rec.signature, null, 2));
-  const inferred = rec.risk === "write" ? inferredRequest(service, method) : null;
+  // only infer when there are no real observed params (mirror the OpenRPC gate — real params win)
+  const inferred =
+    rec.risk === "write" && !(rec.params && rec.params.length)
+      ? inferredRequest(service, method)
+      : null;
   if (inferred) parts.push(`// request shape (inferred from ${inferred.from})\n` + JSON.stringify(inferred.shape, null, 2));
   else if (rec.params && rec.params.length) parts.push("// params\n" + JSON.stringify(rec.params, null, 2));
   if (parts.length) detail = `<pre class="detail">${escapeHtml(parts.join("\n\n"))}</pre>`;

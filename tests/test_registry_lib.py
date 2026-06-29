@@ -196,7 +196,12 @@ def test_committed_index_matches_devices():
     ]
     committed = json.loads((reg / "index.json").read_text(encoding="utf-8"))
     assert committed == build_manifest(profiles)
+    # published profiles must carry no device identifiers — MAC or literal IPv4 (the distiller
+    # labels them <mac>/<ipv4>; a literal here means a leak slipped through).
     mac = re.compile(r"(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
+    ipv4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
     for p in (reg / "devices").glob("*.json"):
-        assert validate_profile(json.loads(p.read_text(encoding="utf-8"))) is None
-        assert not mac.search(p.read_text(encoding="utf-8"))
+        text = p.read_text(encoding="utf-8")
+        assert validate_profile(json.loads(text)) is None
+        assert not mac.search(text), f"{p.name}: MAC leaked"
+        assert not ipv4.search(text), f"{p.name}: literal IPv4 leaked"

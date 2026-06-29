@@ -129,7 +129,7 @@ def _signature_to_schema(sig: Any) -> dict[str, Any]:
     return {}
 
 
-_WRITE_VERBS = ("set", "add", "update", "create", "del", "remove", "clear")
+_WRITE_VERBS = ("set", "add", "update", "create", "del", "delete", "remove", "clear")
 
 
 def _paired_read(service_methods: dict[str, Any], method: str) -> tuple[str, Any] | None:
