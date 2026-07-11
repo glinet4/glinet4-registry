@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/glinet4/branding/main/assets/dark_logo.png">
+    <img alt="glinet4" src="https://raw.githubusercontent.com/glinet4/branding/main/assets/logo.png" width="300">
+  </picture>
+</p>
+
 # glinet4-registry
 
 Community device-profile registry for GL.iNet routers — firmware API capability data, fully decoupled from the `glinet4-profiler` package.
