@@ -12,8 +12,8 @@ body:
         or response values; just the API shape):
 
         ```
-        uvx glinet-profiler              # local web UI: capture, then click Download
-        uvx glinet-profiler 192.168.8.1  # headless: writes <id>.json + prints a submit link
+        uvx glinet4-profiler              # local web UI: capture, then click Download
+        uvx glinet4-profiler 192.168.8.1  # headless: writes <id>.json + prints a submit link
         ```
 
         Then **drag-and-drop the saved `<id>.json` into the box below** (don't paste its contents).

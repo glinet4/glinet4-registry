@@ -200,7 +200,7 @@ def to_openrpc(profile: dict[str, Any]) -> dict[str, Any]:
             "title": f"GL.iNet {model} RPC API",
             "version": str(firmware),
             "description": (
-                f"Auto-generated from a sanitized glinet-profiler capture of a GL.iNet {model} "
+                f"Auto-generated from a sanitized glinet4-profiler capture of a GL.iNet {model} "
                 f"on firmware {firmware}. Calls are JSON-RPC 2.0 over POST /rpc. The `x-status`, "
                 "`x-risk`, `x-discovered-by` and `x-gli4py` extensions carry registry metadata. "
                 "Empirical observation, not an official vendor contract."

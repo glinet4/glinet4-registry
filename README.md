@@ -13,7 +13,7 @@ Community device-profile registry for GL.iNet routers — firmware API capabilit
 
 ## How to contribute
 
-**Option 1 — the launcher (recommended):** Run [`glinet-profiler`](https://github.com/shauneccles/glinet-profiler) against your device. It captures a **sanitized** profile (see [What a profile contains](#what-a-profile-contains-and-what-it-doesnt) below — no MACs, serials, credentials, or real config values), tells you whether the device is already here, and opens a prefilled submission for you.
+**Option 1 — the launcher (recommended):** Run [`glinet-profiler`](https://github.com/glinet4/glinet4-profiler) against your device. It captures a **sanitized** profile (see [What a profile contains](#what-a-profile-contains-and-what-it-doesnt) below — no MACs, serials, credentials, or real config values), tells you whether the device is already here, and opens a prefilled submission for you.
 
 ```bash
 uvx glinet-profiler              # local web UI
