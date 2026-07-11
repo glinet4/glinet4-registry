@@ -131,7 +131,7 @@ def test_to_openrpc_exports_exists_methods_with_extensions():
     }
     # registry metadata preserved as x- extensions
     assert by_name["system.get_info"]["x-status"] == "available"
-    assert by_name["system.get_info"]["x-gli4py"] == "router_info"
+    assert by_name["system.get_info"]["x-glinet4"] == "router_info"
     # discovered write: named params, empty result schema (never called)
     assert by_name["acl.add_user"]["params"] == [{"name": "name", "schema": {}}]
     assert by_name["acl.add_user"]["result"]["schema"] == {}

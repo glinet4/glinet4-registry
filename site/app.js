@@ -176,8 +176,8 @@ function block(label, body, req) {
 function methodRow(service, method, rec) {
   const present = PRESENT.has(rec.status);
   let cov = "";
-  if (rec.covered_by) cov = badge(`gli4py: ${rec.covered_by}`, "cov-yes");
-  else if (present) cov = badge("not in gli4py", "cov-no");
+  if (rec.covered_by) cov = badge(`glinet4: ${rec.covered_by}`, "cov-yes");
+  else if (present) cov = badge("not in glinet4", "cov-no");
   const parts = [];
   if (rec.signature != null) parts.push(block("Response signature", JSON.stringify(rec.signature, null, 2)));
   const inferred = rec.risk === "write" && !(rec.params && rec.params.length)
