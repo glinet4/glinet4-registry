@@ -1,6 +1,6 @@
-# glinet-registry
+# glinet4-registry
 
-Community device-profile registry for GL.iNet routers — firmware API capability data, fully decoupled from the `glinet-profiler` package.
+Community device-profile registry for GL.iNet routers — firmware API capability data, fully decoupled from the `glinet4-profiler` package.
 
 > **Built with AI assistance.** Most of this code (and the tooling/bot) was written by Claude — human-directed, reviewed, and tested against real hardware. It's open source; read it and judge for yourself.
 
@@ -13,11 +13,11 @@ Community device-profile registry for GL.iNet routers — firmware API capabilit
 
 ## How to contribute
 
-**Option 1 — the launcher (recommended):** Run [`glinet-profiler`](https://github.com/glinet4/glinet4-profiler) against your device. It captures a **sanitized** profile (see [What a profile contains](#what-a-profile-contains-and-what-it-doesnt) below — no MACs, serials, credentials, or real config values), tells you whether the device is already here, and opens a prefilled submission for you.
+**Option 1 — the launcher (recommended):** Run [`glinet4-profiler`](https://github.com/glinet4/glinet4-profiler) against your device. It captures a **sanitized** profile (see [What a profile contains](#what-a-profile-contains-and-what-it-doesnt) below — no MACs, serials, credentials, or real config values), tells you whether the device is already here, and opens a prefilled submission for you.
 
 ```bash
-uvx glinet-profiler              # local web UI
-uvx glinet-profiler 192.168.8.1  # headless; prints the submission link
+uvx glinet4-profiler              # local web UI
+uvx glinet4-profiler 192.168.8.1  # headless; prints the submission link
 ```
 
 **Option 2 — the issue form:** Open a [Device Profile submission](../../issues/new?template=profile-submission.yml) issue and **drag-and-drop** the `<id>.json` the launcher saved (don't paste its contents). A bot validates it and opens a pull request.
@@ -32,7 +32,7 @@ before anything is written:
 - **Device:** model, firmware, vendor, hardware revision, and non-identifying
   **capability flags** — the regulatory region (e.g. `US`) and the software/hardware
   feature map (AdGuard, Tor, VPN, cellular, USB 3.0 …).
-- **Per method:** name, status, read/write risk, gli4py coverage, params, and a
+- **Per method:** name, status, read/write risk, glinet4 coverage, params, and a
   response **signature**.
 
 The **signature** keeps the response's field **structure** and *safe* example
@@ -63,3 +63,7 @@ CI enforces that `index.json` matches the device files (`python scripts/build_ma
 - `scripts/build_manifest.py` — rebuild or `--check` the manifest
 - `scripts/ingest.py` — validate a submission file, write it, and rebuild the manifest
 - `tests/` — `uvx pytest -q`
+
+---
+
+Part of the **[glinet4](https://github.com/glinet4)** project — [glinet4](https://github.com/glinet4/glinet4) (Python library) · [glinet4-ha](https://github.com/glinet4/glinet4-ha) (Home Assistant) · [glinet4-profiler](https://github.com/glinet4/glinet4-profiler) · [glinet4-registry](https://github.com/glinet4/glinet4-registry)
