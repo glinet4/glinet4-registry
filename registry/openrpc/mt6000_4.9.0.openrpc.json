@@ -1,6 +1,6 @@
 {
   "info": {
-    "description": "Auto-generated from a sanitized glinet-profiler capture of a GL.iNet mt6000 on firmware 4.9.0. Calls are JSON-RPC 2.0 over POST /rpc. The `x-status`, `x-risk`, `x-discovered-by` and `x-gli4py` extensions carry registry metadata. Empirical observation, not an official vendor contract.",
+    "description": "Auto-generated from a sanitized glinet4-profiler capture of a GL.iNet mt6000 on firmware 4.9.0. Calls are JSON-RPC 2.0 over POST /rpc. The `x-status`, `x-risk`, `x-discovered-by` and `x-glinet4` extensions carry registry metadata. Empirical observation, not an official vendor contract.",
     "license": {
       "name": "GPL-3.0-or-later"
     },
@@ -895,7 +895,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "list_all_clients",
+      "x-glinet4": "list_all_clients",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -1400,7 +1400,7 @@
         "schema": {}
       },
       "x-discovered-by": "ssh",
-      "x-gli4py": "ping",
+      "x-glinet4": "ping",
       "x-risk": "write",
       "x-status": "discovered"
     },
@@ -2429,7 +2429,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "connected_to_internet",
+      "x-glinet4": "connected_to_internet",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -4012,7 +4012,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "list_static_clients",
+      "x-glinet4": "list_static_clients",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -9119,7 +9119,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "router_info",
+      "x-glinet4": "router_info",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -9162,7 +9162,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "router_get_load",
+      "x-glinet4": "router_get_load",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -9567,7 +9567,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "router_get_status",
+      "x-glinet4": "router_get_status",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -9976,7 +9976,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "tailscale_configured",
+      "x-glinet4": "tailscale_configured",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -10013,7 +10013,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "tailscale_connection_state",
+      "x-glinet4": "tailscale_connection_state",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -10088,7 +10088,7 @@
         "schema": {}
       },
       "x-discovered-by": "ssh",
-      "x-gli4py": "tailscale_start",
+      "x-glinet4": "tailscale_start",
       "x-inferred-from": "tailscale.get_config",
       "x-risk": "write",
       "x-status": "discovered"
@@ -12118,7 +12118,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "wireguard_client_state",
+      "x-glinet4": "wireguard_client_state",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -12550,7 +12550,7 @@
         "schema": {}
       },
       "x-discovered-by": "ssh",
-      "x-gli4py": "wireguard_client_start",
+      "x-glinet4": "wireguard_client_start",
       "x-inferred-from": "vpn-client.get_tunnel",
       "x-risk": "write",
       "x-status": "discovered"
@@ -12684,7 +12684,7 @@
         "schema": {}
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "wireguard_client_list",
+      "x-glinet4": "wireguard_client_list",
       "x-risk": "read",
       "x-status": "error"
     },
@@ -12817,7 +12817,7 @@
         "schema": {}
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "wireguard_client_state",
+      "x-glinet4": "wireguard_client_state",
       "x-risk": "read",
       "x-status": "error"
     },
@@ -13620,7 +13620,7 @@
         }
       },
       "x-discovered-by": "catalog",
-      "x-gli4py": "wifi_ifaces_get",
+      "x-glinet4": "wifi_ifaces_get",
       "x-risk": "read",
       "x-status": "available"
     },
@@ -13936,7 +13936,7 @@
         "schema": {}
       },
       "x-discovered-by": "ssh",
-      "x-gli4py": "wifi_iface_set_enabled",
+      "x-glinet4": "wifi_iface_set_enabled",
       "x-inferred-from": "wifi.get_config",
       "x-risk": "write",
       "x-status": "discovered"

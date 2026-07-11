@@ -184,7 +184,7 @@ def to_openrpc(profile: dict[str, Any]) -> dict[str, Any]:
                 "x-discovered-by": rec.get("discovered_by"),
             }
             if rec.get("covered_by"):
-                entry["x-gli4py"] = rec["covered_by"]
+                entry["x-glinet4"] = rec["covered_by"]
             if rec.get("risk") == "write" and not entry["params"]:
                 pair = _paired_read(profile["services"][service], method)
                 if pair:
@@ -202,7 +202,7 @@ def to_openrpc(profile: dict[str, Any]) -> dict[str, Any]:
             "description": (
                 f"Auto-generated from a sanitized glinet4-profiler capture of a GL.iNet {model} "
                 f"on firmware {firmware}. Calls are JSON-RPC 2.0 over POST /rpc. The `x-status`, "
-                "`x-risk`, `x-discovered-by` and `x-gli4py` extensions carry registry metadata. "
+                "`x-risk`, `x-discovered-by` and `x-glinet4` extensions carry registry metadata. "
                 "Empirical observation, not an official vendor contract."
             ),
             "license": {"name": "GPL-3.0-or-later"},
