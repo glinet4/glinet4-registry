@@ -70,6 +70,7 @@ CI enforces that `index.json` matches the device files (`python scripts/build_ma
 - `scripts/build_manifest.py` — rebuild or `--check` the manifest
 - `scripts/ingest.py` — validate a submission file, write it, and rebuild the manifest
 - `tests/` — `uvx pytest -q`
+- `uvx prek run --all-files` — run the CI lint checks (file hygiene, `ruff check`, manifest `--check`) locally; `uvx prek install` runs them on every commit
 
 ---
 
