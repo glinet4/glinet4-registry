@@ -4,8 +4,23 @@ const $ = (id) => document.getElementById(id);
 const state = { manifest: null, devices: {}, current: null };
 
 const PRESENT = new Set(["available", "needs_params"]);
-const ABSENTISH = new Set(["absent", "unreachable", "other", "auth_error", "token_error"]);
-const WRITE_VERBS = new Set(["set", "add", "update", "create", "del", "delete", "remove", "clear"]);
+const ABSENTISH = new Set([
+  "absent",
+  "unreachable",
+  "other",
+  "auth_error",
+  "token_error",
+]);
+const WRITE_VERBS = new Set([
+  "set",
+  "add",
+  "update",
+  "create",
+  "del",
+  "delete",
+  "remove",
+  "clear",
+]);
 
 // Curated, friendly labels for the headline software capabilities (others stay in the raw block).
 const SW_LABELS = {
@@ -28,10 +43,15 @@ const SW_LABELS = {
 const cap = (p) => p.capabilities || {};
 const hw = (p) => cap(p).hardware_feature || {};
 const sw = (p) => cap(p).software_feature || {};
-const truthy = (v) => v === true || (typeof v === "string" && v !== "" && v !== "0" && v !== "false");
+const truthy = (v) =>
+  v === true ||
+  (typeof v === "string" && v !== "" && v !== "0" && v !== "false");
 
 const HW = [
-  { label: "Cellular modem", fn: (p) => truthy(hw(p).simo) || truthy(hw(p).build_in_modem) },
+  {
+    label: "Cellular modem",
+    fn: (p) => truthy(hw(p).simo) || truthy(hw(p).build_in_modem),
+  },
   { label: "Bluetooth", fn: (p) => truthy(hw(p).bluetooth) },
   { label: "GPS", fn: (p) => truthy(hw(p).gps) },
   { label: "USB 3.0", fn: (p) => truthy(hw(p).usb3) },
@@ -41,31 +61,54 @@ const HW = [
 ];
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => (
-    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
-  ));
+  return String(s).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
 }
-const manifestOf = (id) => (state.manifest.devices || []).find((d) => d.id === id) || {};
+const manifestOf = (id) =>
+  (state.manifest.devices || []).find((d) => d.id === id) || {};
 
 // ---------- data ----------
 async function loadAll() {
   state.manifest = await (await fetch("data/index.json")).json();
-  await Promise.all((state.manifest.devices || []).map(async (d) => {
-    try { state.devices[d.id] = await (await fetch(`data/devices/${d.id}.json`)).json(); }
-    catch (_e) { /* skip a device that fails to load */ }
-  }));
+  await Promise.all(
+    (state.manifest.devices || []).map(async (d) => {
+      try {
+        state.devices[d.id] = await (
+          await fetch(`data/devices/${d.id}.json`)
+        ).json();
+      } catch (_e) {
+        /* skip a device that fails to load */
+      }
+    }),
+  );
 }
 
 // ---------- get/set pairing (mirror of the OpenRPC export) ----------
 function pairedRead(p, service, method) {
   const us = method.indexOf("_");
   if (us < 0) return null;
-  const verb = method.slice(0, us), noun = method.slice(us + 1);
+  const verb = method.slice(0, us),
+    noun = method.slice(us + 1);
   if (!WRITE_VERBS.has(verb) || !noun) return null;
-  const methods = (p.services[service]) || {};
-  for (const cand of [`get_${noun}`, `get_${noun}_list`, `get_${noun}_config`, `get_${noun}_info`]) {
+  const methods = p.services[service] || {};
+  for (const cand of [
+    `get_${noun}`,
+    `get_${noun}_list`,
+    `get_${noun}_config`,
+    `get_${noun}_info`,
+  ]) {
     const r = methods[cand];
-    if (r && r.signature && typeof r.signature === "object" && !Array.isArray(r.signature)) {
+    if (
+      r &&
+      r.signature &&
+      typeof r.signature === "object" &&
+      !Array.isArray(r.signature)
+    ) {
       return { from: `${service}.${cand}`, shape: r.signature };
     }
   }
@@ -75,63 +118,104 @@ function pairedRead(p, service, method) {
 // ---------- hero ----------
 function renderHero() {
   const devs = Object.values(state.devices);
-  let methods = 0, sigs = 0, inferred = 0;
+  let methods = 0,
+    sigs = 0,
+    inferred = 0;
   for (const p of devs) {
     for (const [svc, mm] of Object.entries(p.services || {})) {
       for (const [m, rec] of Object.entries(mm)) {
         if (!ABSENTISH.has(rec.status)) methods += 1;
         if (rec.signature != null) sigs += 1;
-        if (rec.risk === "write" && !(rec.params && rec.params.length) && pairedRead(p, svc, m)) inferred += 1;
+        if (
+          rec.risk === "write" &&
+          !(rec.params && rec.params.length) &&
+          pairedRead(p, svc, m)
+        )
+          inferred += 1;
       }
     }
   }
   const stats = [
-    { num: devs.length, label: devs.length === 1 ? "model profiled" : "models profiled" },
+    {
+      num: devs.length,
+      label: devs.length === 1 ? "model profiled" : "models profiled",
+    },
     { num: methods, label: "API methods mapped" },
     { num: sigs, label: "response signatures" },
     { num: inferred, label: "inferred write shapes", accent: true },
   ];
-  $("hero-stats").innerHTML = stats.map((s) =>
-    `<div class="stat"><div class="stat-num${s.accent ? " accent" : ""}">${s.num}</div>` +
-    `<div class="stat-label">${s.label}</div></div>`).join("");
+  $("hero-stats").innerHTML = stats
+    .map(
+      (s) =>
+        `<div class="stat"><div class="stat-num${s.accent ? " accent" : ""}">${s.num}</div>` +
+        `<div class="stat-label">${s.label}</div></div>`,
+    )
+    .join("");
 }
 
 // ---------- feature matrix ----------
-function yesno(v) { return truthy(v) ? '<span class="yes">✓</span>' : '<span class="no">✗</span>'; }
+function yesno(v) {
+  return truthy(v) ? '<span class="yes">✓</span>' : '<span class="no">✗</span>';
+}
 
 function matrixRows(devs) {
   const rows = [];
-  rows.push({ group: "Region", label: "Regulatory region",
-    cell: (p) => `<span class="cell-region">${escapeHtml(cap(p).country_code || "—")}</span>` });
+  rows.push({
+    group: "Region",
+    label: "Regulatory region",
+    cell: (p) =>
+      `<span class="cell-region">${escapeHtml(cap(p).country_code || "—")}</span>`,
+  });
   for (const [key, label] of Object.entries(SW_LABELS)) {
     if (devs.some((p) => typeof sw(p)[key] === "boolean")) {
       rows.push({ group: "Software", label, cell: (p) => yesno(sw(p)[key]) });
     }
   }
   if (devs.some((p) => cap(p).hardware_feature)) {
-    for (const h of HW) rows.push({ group: "Hardware", label: h.label, cell: (p) => yesno(h.fn(p)) });
+    for (const h of HW)
+      rows.push({
+        group: "Hardware",
+        label: h.label,
+        cell: (p) => yesno(h.fn(p)),
+      });
   }
   const stat = (k) => (p) => {
     const v = manifestOf(p.id)[k];
     return `<span class="cell-val">${v == null ? "—" : v}</span>`;
   };
-  rows.push({ group: "API surface", label: "Available methods", cell: stat("available_count") });
-  rows.push({ group: "API surface", label: "Discovered writes", cell: stat("discovered_count") });
-  rows.push({ group: "API surface", label: "Services", cell: stat("service_count") });
+  rows.push({
+    group: "API surface",
+    label: "Available methods",
+    cell: stat("available_count"),
+  });
+  rows.push({
+    group: "API surface",
+    label: "Discovered writes",
+    cell: stat("discovered_count"),
+  });
+  rows.push({
+    group: "API surface",
+    label: "Services",
+    cell: stat("service_count"),
+  });
   return rows;
 }
 
 function renderMatrix() {
-  const devs = (state.manifest.devices || []).map((d) => state.devices[d.id]).filter(Boolean);
+  const devs = (state.manifest.devices || [])
+    .map((d) => state.devices[d.id])
+    .filter(Boolean);
   const host = $("matrix-host");
   if (!devs.length) {
-    host.innerHTML = '<p class="empty">No device profiles yet. Capture one with <code>glinet-profiler</code>.</p>';
+    host.innerHTML =
+      '<p class="empty">No device profiles yet. Capture one with <code>glinet-profiler</code>.</p>';
     return;
   }
   const rows = matrixRows(devs);
   let html = '<table class="matrix"><thead><tr><th class="feat">Feature</th>';
   for (const p of devs) {
-    html += `<th class="model-col" data-id="${escapeHtml(p.id)}">` +
+    html +=
+      `<th class="model-col" data-id="${escapeHtml(p.id)}">` +
       `<div class="m-name">${escapeHtml(p.model)}</div>` +
       `<div class="m-fw">${escapeHtml(p.firmware_version)}</div></th>`;
   }
@@ -154,23 +238,41 @@ function renderMatrix() {
 function renderCaps(p) {
   const el = $("d-capabilities");
   const c = cap(p);
-  if (!c.country_code && !c.software_feature && !c.hardware_feature) { el.hidden = true; return; }
-  const onSw = Object.entries(SW_LABELS).filter(([k]) => sw(p)[k] === true).map(([, l]) => l);
+  if (!c.country_code && !c.software_feature && !c.hardware_feature) {
+    el.hidden = true;
+    return;
+  }
+  const onSw = Object.entries(SW_LABELS)
+    .filter(([k]) => sw(p)[k] === true)
+    .map(([, l]) => l);
   const onHw = HW.filter((h) => h.fn(p)).map((h) => h.label);
   const region = c.country_code
-    ? `<div class="caps-region">Regulatory region <b>${escapeHtml(c.country_code)}</b></div>` : "";
-  const chips = [...onSw, ...onHw].map((f) => `<span class="flag on">${escapeHtml(f)}</span>`).join("")
-    || '<span class="flag">no capability flags</span>';
-  const raw = JSON.stringify({ software_feature: sw(p), hardware_feature: hw(p) }, null, 2);
-  el.innerHTML = region + `<div class="caps-flags">${chips}</div>` +
+    ? `<div class="caps-region">Regulatory region <b>${escapeHtml(c.country_code)}</b></div>`
+    : "";
+  const chips =
+    [...onSw, ...onHw]
+      .map((f) => `<span class="flag on">${escapeHtml(f)}</span>`)
+      .join("") || '<span class="flag">no capability flags</span>';
+  const raw = JSON.stringify(
+    { software_feature: sw(p), hardware_feature: hw(p) },
+    null,
+    2,
+  );
+  el.innerHTML =
+    region +
+    `<div class="caps-flags">${chips}</div>` +
     `<details><summary>raw capability flags</summary><pre>${escapeHtml(raw)}</pre></details>`;
   el.hidden = false;
 }
 
-function badge(text, cls) { return `<span class="badge ${escapeHtml(cls)}">${escapeHtml(text)}</span>`; }
+function badge(text, cls) {
+  return `<span class="badge ${escapeHtml(cls)}">${escapeHtml(text)}</span>`;
+}
 function block(label, body, req) {
-  return `<div class="detail-block"><div class="detail-label${req ? " req" : ""}">${escapeHtml(label)}</div>` +
-    `<pre>${escapeHtml(body)}</pre></div>`;
+  return (
+    `<div class="detail-block"><div class="detail-label${req ? " req" : ""}">${escapeHtml(label)}</div>` +
+    `<pre>${escapeHtml(body)}</pre></div>`
+  );
 }
 
 function methodRow(service, method, rec) {
@@ -179,12 +281,27 @@ function methodRow(service, method, rec) {
   if (rec.covered_by) cov = badge(`glinet4: ${rec.covered_by}`, "cov-yes");
   else if (present) cov = badge("not in glinet4", "cov-no");
   const parts = [];
-  if (rec.signature != null) parts.push(block("Response signature", JSON.stringify(rec.signature, null, 2)));
-  const inferred = rec.risk === "write" && !(rec.params && rec.params.length)
-    ? pairedRead(state.current, service, method) : null;
-  if (inferred) parts.push(block(`Request shape · inferred from ${inferred.from}`, JSON.stringify(inferred.shape, null, 2), true));
-  else if (rec.params && rec.params.length) parts.push(block("Params", JSON.stringify(rec.params, null, 2), true));
-  const detail = parts.length ? `<div class="detail">${parts.join("")}</div>` : "";
+  if (rec.signature != null)
+    parts.push(
+      block("Response signature", JSON.stringify(rec.signature, null, 2)),
+    );
+  const inferred =
+    rec.risk === "write" && !(rec.params && rec.params.length)
+      ? pairedRead(state.current, service, method)
+      : null;
+  if (inferred)
+    parts.push(
+      block(
+        `Request shape · inferred from ${inferred.from}`,
+        JSON.stringify(inferred.shape, null, 2),
+        true,
+      ),
+    );
+  else if (rec.params && rec.params.length)
+    parts.push(block("Params", JSON.stringify(rec.params, null, 2), true));
+  const detail = parts.length
+    ? `<div class="detail">${parts.join("")}</div>`
+    : "";
   return `<div class="method">
     <div class="mhead">
       <span class="mname">${escapeHtml(method)}</span>
@@ -198,8 +315,10 @@ function renderResults() {
   const p = state.current;
   if (!p) return;
   const q = $("search").value.trim().toLowerCase();
-  const availOnly = $("f-available").checked, writesOnly = $("f-writes").checked, unwrapped = $("f-unwrapped").checked;
-  const filtering = !!(q || availOnly || writesOnly || unwrapped);  // auto-expand groups when filtering
+  const availOnly = $("f-available").checked,
+    writesOnly = $("f-writes").checked,
+    unwrapped = $("f-unwrapped").checked;
+  const filtering = !!(q || availOnly || writesOnly || unwrapped); // auto-expand groups when filtering
   let shown = 0;
   const parts = [];
   for (const service of Object.keys(p.services).sort()) {
@@ -216,18 +335,24 @@ function renderResults() {
       shown += 1;
     }
     if (rows.length) {
-      parts.push(`<details class="service"${filtering ? " open" : ""}>` +
-        `<summary class="svc-head"><span class="svc-name">${escapeHtml(service)}</span>` +
-        `<span class="svc-count">${rows.length}</span></summary>${rows.join("")}</details>`);
+      parts.push(
+        `<details class="service"${filtering ? " open" : ""}>` +
+          `<summary class="svc-head"><span class="svc-name">${escapeHtml(service)}</span>` +
+          `<span class="svc-count">${rows.length}</span></summary>${rows.join("")}</details>`,
+      );
     }
   }
-  $("d-results").innerHTML = parts.join("") || '<p class="empty">No methods match these filters.</p>';
+  $("d-results").innerHTML =
+    parts.join("") || '<p class="empty">No methods match these filters.</p>';
   $("d-count").textContent = `${shown} method${shown === 1 ? "" : "s"}`;
 }
 
 function showDetail(id) {
   const p = state.devices[id];
-  if (!p) { showOverview(); return; }
+  if (!p) {
+    showOverview();
+    return;
+  }
   state.current = p;
   $("overview").hidden = true;
   $("detail").hidden = false;
@@ -262,13 +387,18 @@ document.addEventListener("click", (e) => {
   if (nav) {
     e.preventDefault();
     const toMatrix = (nav.getAttribute("href") || "").includes("#matrix");
-    if (location.hash) location.hash = "";  // -> hashchange -> showOverview()
+    if (location.hash)
+      location.hash = ""; // -> hashchange -> showOverview()
     else showOverview();
-    if (toMatrix) setTimeout(() => $("matrix").scrollIntoView({ behavior: "smooth" }), 0);
+    if (toMatrix)
+      setTimeout(() => $("matrix").scrollIntoView({ behavior: "smooth" }), 0);
     return;
   }
   const col = e.target.closest(".model-col");
-  if (col) { location.hash = "d=" + encodeURIComponent(col.dataset.id); return; }
+  if (col) {
+    location.hash = "d=" + encodeURIComponent(col.dataset.id);
+    return;
+  }
   const method = e.target.closest(".method");
   if (method) method.classList.toggle("open");
 });
@@ -282,7 +412,8 @@ window.addEventListener("hashchange", applyRoute);
   try {
     await loadAll();
   } catch (_e) {
-    $("matrix-host").innerHTML = '<p class="empty">Could not load registry data.</p>';
+    $("matrix-host").innerHTML =
+      '<p class="empty">Could not load registry data.</p>';
     return;
   }
   renderHero();
