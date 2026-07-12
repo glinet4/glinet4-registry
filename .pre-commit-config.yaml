@@ -12,6 +12,18 @@ repos:
     hooks:
       # Lint only — CI does not enforce `ruff format`.
       - id: ruff-check
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.37.3
+    hooks:
+      - id: check-github-workflows
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.26.1
+    hooks:
+      - id: zizmor
   - repo: local
     hooks:
       - id: build-manifest
