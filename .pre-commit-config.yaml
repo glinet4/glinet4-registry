@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.21
+    hooks:
+      # Lint only — CI does not enforce `ruff format`.
+      - id: ruff-check
+  - repo: local
+    hooks:
+      - id: build-manifest
+        name: build-manifest --check
+        entry: python scripts/build_manifest.py --check
+        language: system
+        pass_filenames: false
+        # Pure-stdlib check that runs in <0.1s, so always run it instead of
+        # maintaining a file pattern over registry/, scripts/ and tools/.
+        always_run: true
