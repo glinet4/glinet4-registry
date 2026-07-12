@@ -2,14 +2,20 @@ name: Profile submission
 on:
   issues:
     types: [opened, labeled]
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+permissions: {}
+concurrency:
+  # opened + labeled can fire back-to-back for one issue; serialize per issue
+  # and never abort an in-flight ingest.
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: false
 jobs:
   ingest:
     if: contains(github.event.issue.labels.*.name, 'profile-submission')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # create-pull-request pushes the submit/* branch
+      pull-requests: write # create-pull-request opens the PR
+      issues: write # result comment on the submission issue
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:

@@ -3,15 +3,16 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-permissions:
-  pages: write
-  id-token: write
-  contents: read
+permissions: {}
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: false # queue deploys, never abort one mid-flight
 jobs:
   deploy:
+    permissions:
+      contents: read
+      pages: write # deploy-pages publishes the site
+      id-token: write # deploy-pages OIDC deployment attestation
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
